@@ -1,0 +1,41 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore environment variables file
+.env
+
+# Ignore build artifacts
+/build
+/dist
+
+# Ignore npm debug log
+npm-debug.log*
+
+# Ignore any local development files
+*.log
+*.log.*
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+*.psd
+*.pdf
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore npm package-lock.json
+package-lock.json
+
+# Ignore yarn lock file
+yarn.lock
+
+# Ignore production build files
+/build
