@@ -1,18 +1,30 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Todo.css"; // Import the CSS file
-import axios from 'axios'
+import axios from "axios";
+import { AiOutlineDelete } from "react-icons/ai";
+import { BsAlphabetUppercase } from "react-icons/bs";
+import { MdOutlineDoneAll } from "react-icons/md";
+import { MdOutlineRemoveDone } from "react-icons/md";
+import { CiEdit } from "react-icons/ci";
 
 function Todo() {
-  const [todos, setTodos] = useState([{ task: "Sample Task", description: "Sample Description", done: false }]);
+  const [todos, setTodos] = useState([
+    { task: "Sample Task", description: "Sample Description", done: false },
+  ]);
   const [inputValue, setInputValue] = useState("");
   const [descriptionValue, setDescriptionValue] = useState("");
   const [mark, setMark] = useState(false);
 
   const handleAddTask = () => {
-    const newTodo = { task: inputValue, description: descriptionValue, done: false };
+    const newTodo = {
+      task: inputValue,
+      description: descriptionValue,
+      done: false,
+    };
     setTodos([...todos, newTodo]);
-  
-    axios.post('http://localhost:3000/data', newTodo)
+
+    axios
+      .post("http://localhost:3000/data", newTodo)
       .then((res) => {
         console.log(res.data);
       })
@@ -20,21 +32,22 @@ function Todo() {
         console.error("Error:", err);
       });
 
-  
     setInputValue("");
     setDescriptionValue("");
     console.log(todos[1]);
   };
-  
-  useEffect(()=> {
+
+  useEffect(() => {
     fetchdata();
-  },[]);
+  }, []);
+
+  
 
   const fetchdata = async () => {
-    const resp = await axios.get('http://localhost:3000/data');
+    const resp = await axios.get("http://localhost:3000/data");
     console.log(resp.data);
     setTodos(resp.data);
-  }
+  };
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
@@ -44,7 +57,7 @@ function Todo() {
     setDescriptionValue(event.target.value);
   };
 
-  const handleUpdate = (currentTask, currentDesc) => {
+  const handleUpdate = (currentTask, currentDesc, updateTaskId) => {
     const updatedTodos = todos.map((todo) => {
       if (todo.task === currentTask && todo.description === currentDesc) {
         return { ...todo, task: inputValue, description: descriptionValue };
@@ -54,7 +67,11 @@ function Todo() {
     setTodos(updatedTodos);
   
     // Make API call to update the todo item on the server
-    axios.put(`http://localhost:3000/data/${currentTask}`, { task: inputValue, description: descriptionValue })
+    axios
+      .put(`http://localhost:3000/data/${updateTaskId}`, {
+        task: inputValue,
+        description: descriptionValue,
+      })
       .then((res) => {
         console.log(res.data);
       })
@@ -62,14 +79,25 @@ function Todo() {
         console.error("Error:", err);
       });
   };
+  
 
-  const handleDelete = (taskToDelete , taskID) => {
-    const taskIdd = taskID
+  const handleDelete = (taskToDelete, taskID) => {
+    const taskIdd = taskID;
     const updatedTodos = todos.filter((todo) => todo.task !== taskToDelete);
     setTodos(updatedTodos);
     console.log(taskID);
-    const resp = axios.get(`http://localhost:3000/data/delete?deletedData=${taskIdd}`)
+    try {
+      const resp = axios.get(
+        `http://localhost:3000/data/delete?deletedData=${taskIdd}`
+      );
+      console.log(resp);
+    }
+    catch (e) {
+      console.log(e);
+    }
   };
+
+  
 
   const handleUppercase = (taskToUppercase) => {
     const updatedTodos = todos.map((todo) => {
@@ -85,7 +113,6 @@ function Todo() {
     const updatedTodos = todos.map((todo) => ({ ...todo, done: !mark }));
     setTodos(updatedTodos);
     setMark(!mark);
-
   };
 
   const handleSingleToggelMark = (taskToMark) => {
@@ -99,44 +126,90 @@ function Todo() {
   };
 
   return (
-    <div className="todo-container">
-      <h1 className="todo-header">Todo List</h1>
-      <div className="todo-form">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleChange}
-          className="todo-input"
-          placeholder="Task"
-        />
-        <input
-          type="text"
-          value={descriptionValue}
-          onChange={handleDescriptionChange}
-          className="todo-description"
-          placeholder="Description"
-        />
-        <button onClick={handleAddTask} className="todo-button">Add Task</button>
+    <div>
+      <h1 className="todo-header">----- My Todos -----</h1>
+      <div className="todo-container">
+        <div className="todo-form">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleChange}
+            className="todo-input"
+            placeholder="Enter Your Task"
+          />
+          <input
+            type="text"
+            value={descriptionValue}
+            onChange={handleDescriptionChange}
+            className="todo-description"
+            placeholder="Enter Description About Task"
+          />
+          <button onClick={handleAddTask} className="todo-button">
+            Add Task
+          </button>
+        </div>
+        <ul className="todo-list">
+          {todos.map((todo, index) => (
+            <li
+              key={index}
+              className={`todo-item ${todo.done ? "completed" : ""}`}
+            >
+              <div className="todo-list-internal">
+                <div className="info-control-col">
+                  <strong>{todo.task}</strong>
+                  <p className="paragraph">{todo.description}</p>
+                </div>
+                <div className="list-button-control">
+                  <button onClick={() => handleDelete(todo.task, todo._id)}>
+                    <AiOutlineDelete
+                      title="delete"
+                      style={{ fontSize: "40px", color: "white" }}
+                      className="dele"
+                    />
+                  </button>
+
+                  <button onClick={() => handleUppercase(todo.task)}>
+                    <BsAlphabetUppercase
+                      className="hoverit"
+                      title="Uppercase"
+                      style={{ color: "#00e67a", fontSize: "30px" }}
+                    />
+                  </button>
+
+                  <button onClick={() => handleSingleToggelMark(todo.task)}>
+                    {todo.done ? (
+                      <MdOutlineDoneAll
+                      className="hoverit"
+                        title="Mark as Done"
+                        style={{ color: "#00e67a", fontSize: "30px" }}
+                      />
+                    ) : (
+                      <MdOutlineRemoveDone
+                      className="hoverit"
+                        title="Unmark as Done"
+                        style={{ color: "#00e67a", fontSize: "30px" }}
+                      />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleUpdate(todo.task, todo.description, todo._id)}
+                  >
+                    <CiEdit
+                    className="hoverit"
+                      title="Update"
+                      style={{ color: "#00e67a", fontSize: "30px" }}
+                    />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <button onClick={handleToggleMark} className="todo-button final-button">
+          {mark ? "Mark all as Undone" : "Mark all as Done"}
+        </button>
       </div>
-      <ul className="todo-list">
-        {todos.map((todo, index) => (
-          <li key={index} className={`todo-item ${todo.done ? 'completed' : ''}`}>
-            <div>
-              <strong>{todo.task}</strong>
-              <p>{todo.description}</p>
-              <button onClick={() => handleDelete(todo.task, todo._id)}>Delete</button>
-              <button onClick={() => handleUppercase(todo.task)}>Uppercase</button>
-              <button onClick={() => handleSingleToggelMark(todo.task)}>
-                {todo.done ? "Mark as Undone" : "Mark as Done"}
-              </button>
-              <button onClick={() => handleUpdate(todo.task , todo.description)}>Update</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <button onClick={handleToggleMark} className="todo-button">
-        {mark ? "Mark all as Undone" : "Mark all as Done"}
-      </button>
+      <p className="copyright">&copy; 2024 Hemant Medhsia.</p>
     </div>
   );
 }
